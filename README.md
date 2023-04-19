@@ -1,5 +1,12 @@
 # kindle-touch-weather
-Kindle Touch weather screensaver
+<h3>Kindle Touch weather screensaver</h3>
+
+Features:
+ - 12h openweathermap.org forecast
+ - spending 5% of the battery per 24h
+<p align="left">
+  <img src="1681903587854.jpg" width="350" title="image of the screaansaver">
+</p>
 
 1) Jailbreak the Kindle  
 2) Start server on Windows (modify script for Linux)  
