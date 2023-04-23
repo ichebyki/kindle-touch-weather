@@ -23,7 +23,7 @@ ret=0
 
 while [[ $count != 0 ]]; do
 	#if wget http://server/path/to/weather-script-output.png; then
-	if wget http://192.168.88.101/r-90.png; then
+	if wget http://192.168.88.126/r-90.png; then
 	    _ok_=1
 	    count=0
 		ret=0

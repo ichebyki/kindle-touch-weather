@@ -87,8 +87,8 @@ ready_suspend()
 	### Calculation WAKEUPTIMER
 	#WAKEUPTIMER=$(( `date +%s` + ${DELTA} ))
 	WAKEUPTIMER=$DELTA
-	if [[ `date +%H` < 6 ]]; then
-	    if [[ `date +%H` > 2 ]]; then
+	if [[ `date +%H` -lt 6 ]]; then
+	    if [[ `date +%H` -gt 2 ]]; then
 			HH=`date +%H`
 			MM=`date +%M`
 			SS=`date +%S`
