@@ -48,6 +48,7 @@ on_ScreenSaver()
 	
 	if [[ $ON_SCREENSAVER == 1 ]]; then
 		display_weather "======== on_ScreenSaver($1): PowerD state: $POWERD_STATES "
+		#echo mem > /sys/power/state
 	fi
 }
 
@@ -87,19 +88,19 @@ ready_suspend()
 	### Calculation WAKEUPTIMER
 	#WAKEUPTIMER=$(( `date +%s` + ${DELTA} ))
 	WAKEUPTIMER=$DELTA
-	if [[ `date +%H` -lt 6 ]]; then
-	    if [[ `date +%H` -gt 2 ]]; then
-			HH=`date +%H`
-			MM=`date +%M`
-			SS=`date +%S`
-			HH=$(( $HH * 60 ))
-			HH=$(( $HH * 60 ))
-			MM=$(( $MM * 60 ))
-			SS=$(( $SS + $MM ))
-			SS=$(( $SS + $HH ))
-			WAKEUPTIMER=$(( 21600 - $SS ))
-		fi
-	fi
+	# if [[ `date +%H` -lt 6 ]]; then
+	#     if [[ `date +%H` -gt 2 ]]; then
+	# 		HH=`date +%H`
+	# 		MM=`date +%M`
+	# 		SS=`date +%S`
+	# 		HH=$(( $HH * 60 ))
+	# 		HH=$(( $HH * 60 ))
+	# 		MM=$(( $MM * 60 ))
+	# 		SS=$(( $SS + $MM ))
+	# 		SS=$(( $SS + $HH ))
+	# 		WAKEUPTIMER=$(( 21600 - $SS ))
+	# 	fi
+	# fi
 	_case_=1
 	
     #logx -t "iche: ready_suspend($1), _case_=$_case_: wakescript[$$]" -p 1 "WAKEUPTIMER: $WAKEUPTIMER"
