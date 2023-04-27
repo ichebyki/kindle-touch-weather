@@ -10,6 +10,12 @@ logx() {
 }
 
 export ON_SCREENSAVER=0
+POWERD_STATES=`lipc-get-prop -s com.lab126.powerd state`
+echo "POWERD_STATES: $POWERD_STATES"
+if [ "$POWERD_STATES" == "screenSaver" ] || [ "$POWERD_STATES" == "suspended" ] ; then
+	export ON_SCREENSAVER=1
+fi
+
 # DELTA = amount of seconds to wake up in
 export DELTA=3333
 
@@ -46,6 +52,7 @@ on_ScreenSaver()
 {
     #logx -t "iche: on_ScreenSaver($1): wakescript[$$]" -p 1 "I display screensaver"
 	
+    POWERD_STATES=`lipc-get-prop -s com.lab126.powerd state`
 	if [[ $ON_SCREENSAVER == 1 ]]; then
 		display_weather "======== on_ScreenSaver($1): PowerD state: $POWERD_STATES "
 		#echo mem > /sys/power/state
@@ -72,11 +79,11 @@ wake_up()
 {
     #logx -t "iche: wake_up($1): wakescript[$$]" -p 1 "I wakeup alarm"
     if [ "$POWERD_STATES" == "screenSaver" ] || [ "POWERD_STATES" == "suspended" ] ; then
-      wake_up_rtc $1
+      wake_up_rtc "$1"
     fi
 	
 	if [[ $ON_SCREENSAVER == 1 ]]; then
-		display_weather "======== wake_up($1): wakescript[$$] ========"
+		display_weather "======== wake_up("$1"): wakescript[$$] ========"
 	fi
 }
 
@@ -88,19 +95,22 @@ ready_suspend()
 	### Calculation WAKEUPTIMER
 	#WAKEUPTIMER=$(( `date +%s` + ${DELTA} ))
 	WAKEUPTIMER=$DELTA
-	# if [[ `date +%H` -lt 6 ]]; then
-	#     if [[ `date +%H` -gt 2 ]]; then
-	# 		HH=`date +%H`
-	# 		MM=`date +%M`
-	# 		SS=`date +%S`
-	# 		HH=$(( $HH * 60 ))
-	# 		HH=$(( $HH * 60 ))
-	# 		MM=$(( $MM * 60 ))
-	# 		SS=$(( $SS + $MM ))
-	# 		SS=$(( $SS + $HH ))
-	# 		WAKEUPTIMER=$(( 21600 - $SS ))
-	# 	fi
-	# fi
+	if [[ `date +%H` -lt 66 ]]; then
+	    if [[ `date +%H` -gt 2 ]]; then
+			HH=`date +%H`
+			MM=`date +%M`
+			SS=`date +%S`
+			HH=`expr $HH * 60`
+			HH=`expr $HH * 60`
+			MM=`expr $MM * 60`
+			SS=`expr $SS + $MM`
+			SS=`expr $SS + $HH`
+			WAKEUPTIMER=`expr 21600 - $SS`
+		fi
+	fi
+	if [[ $WAKEUPTIMER -lt $DELTA ]]; then
+	    WAKEUPTIMER=$DELTA
+	fi
 	_case_=1
 	
     #logx -t "iche: ready_suspend($1), _case_=$_case_: wakescript[$$]" -p 1 "WAKEUPTIMER: $WAKEUPTIMER"
@@ -133,23 +143,24 @@ touch /home/ichebyki/kindle/display-weather.sh.log
 #lipc-wait-event -mt com.lab126.powerd '*' | while read event; do
 lipc-wait-event -m com.lab126.powerd goingToScreenSaver,outOfScreenSaver,wakeupFromSuspend,readyToSuspend,resuming | while read event; do
 	#logx -t "iche: lipc-wait-event" -p 1 "EVENT = $event"
+    POWERD_STATES=`lipc-get-prop -s com.lab126.powerd state`
 	case "$event" in
 	*goingToScreenSaver*)
 		export ON_SCREENSAVER=1
-		on_ScreenSaver goingToScreenSaver
+		on_ScreenSaver goingToScreenSaver "$event"
 		;;
 	*outOfScreenSaver*)
 		export ON_SCREENSAVER=0
-		off_ScreenSaver outOfScreenSaver
+		off_ScreenSaver outOfScreenSaver "$event"
 		;;
 	*wakeupFromSuspend*)
-		wake_up wakeupFromSuspend
+		wake_up wakeupFromSuspend "$event"
 		;;
 	*readyToSuspend*)
-		ready_suspend readyToSuspend
+		ready_suspend readyToSuspend "$event"
 		;;
 	*resuming*)
-		wake_up resuming
+		wake_up resuming "$event"
 		;;
 	#*suspending*)
 	#	;;
